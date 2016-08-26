@@ -1,0 +1,130 @@
+package com.golsen.week7.ui.fragments;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ListView;
+
+import com.golsen.week7.R;
+import com.golsen.week7.adapters.ClassifyAdapter;
+import com.golsen.week7.constants.HttpConstant;
+import com.golsen.week7.model.Classify;
+import com.golsen.week7.model.ClassifyFooterImgList;
+import com.golsen.week7.model.ClassifyList;
+import com.google.gson.Gson;
+import com.rock.teachlibrary.ImageLoader;
+import com.rock.teachlibrary.http.HttpUtil;
+
+import java.util.List;
+
+/**
+ * Created by Administrator on 2016/8/22 0022.
+ */
+public class ClassifyFragment extends BaseFragment implements ClassifyAdapter.ColumnCilckLisener{
+
+    private static final String TAG = ClassifyFragment.class.getSimpleName();
+    private ListView mListView;
+    private ClassifyAdapter adapter;
+    private ImageView mHeaderImage;
+    private ImageView mFooterImage;
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        layout = inflater.inflate(R.layout.fragment_classify,container,false);
+
+        return layout;
+
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initView();
+        setupView();
+    }
+
+    private void setupView() {
+        HttpUtil.getStringAsync(HttpConstant.CLASSIFY_URL, new HttpUtil.RequestCallBack() {
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "onFailure: " );
+            }
+
+            @Override
+            public void onSuccess(String result) {
+                Gson gson = new Gson();
+                ClassifyList classifyList = gson.fromJson(result, ClassifyList.class);
+                List<Classify> list = classifyList.getList();
+                //更新适配器
+                adapter.updataRes(list);
+                //更新Header
+                ImageLoader.display(mHeaderImage,list.get(0).getCoverPath());
+            }
+
+            @Override
+            public void onFinish() {
+                Log.e(TAG, "onFinish: " );
+            }
+        });
+
+        //加载footerView的图片
+        HttpUtil.getStringAsync(HttpConstant.CLASSIFY_FOOTER_URL, new HttpUtil.RequestCallBack() {
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "onFailure: footerView图片加载失败" );
+            }
+
+            @Override
+            public void onSuccess(String result) {
+                Gson gson = new Gson();
+                ClassifyFooterImgList classifyFooterImgList = gson.fromJson(result, ClassifyFooterImgList.class);
+                String cover = classifyFooterImgList.getData().get(0).getCover();
+                Log.e(TAG, "onSuccess: "+cover);
+                ImageLoader.display(mFooterImage, cover);
+
+
+            }
+
+            @Override
+            public void onFinish() {
+                Log.e(TAG, "onFinish: " );
+            }
+        });
+
+
+    }
+
+    /**
+     * Headerd的添加最好放在setAdapter之前
+     * 在Android4.4之前,Header添加必须放在设置adapter之前
+     * 4.4之后,没有任何限制了
+     */
+    private void initView() {
+        mListView = ((ListView) layout.findViewById(R.id.classify_lv));
+
+        View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_classify_header, null);
+        mHeaderImage = ((ImageView) headerView.findViewById(R.id.classify_lv_header_img));
+        mListView.addHeaderView(headerView);
+
+        View footerView = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_classify_footer, null);
+        mFooterImage = ((ImageView) footerView.findViewById(R.id.classify_lv_footer));
+        mListView.addFooterView(footerView);
+
+
+        adapter = new ClassifyAdapter(getActivity(),null);
+        mListView.setAdapter(adapter);
+        adapter.setColumnCilckLisener(this);
+
+    }
+
+    @Override
+    public void getColumnClicLisener(int position) {
+        Log.e(TAG, "getColumnClicLisener: "+position );
+    }
+}

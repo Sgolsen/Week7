@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.golsen.week7.ui.MainActivity">
+
+    <FrameLayout
+        android:id="@+id/main_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/activity_controller_height"/>
+    <RadioGroup
+        android:id="@+id/main_controller"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_controller_height"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/main_controller_discover"
+            style="@style/controller_button_style"
+            android:checked="true"
+            android:text="@string/discovery"
+            android:drawableTop="@drawable/controller_btn_discover"/>
+        <RadioButton
+            android:id="@+id/main_controller_book"
+            style="@style/controller_button_style"
+            android:text="@string/book"
+            android:layout_marginRight="@dimen/controll_margin"
+            android:drawableTop="@drawable/controller_btn_book"/>
+        <RadioButton
+            android:id="@+id/main_controller_download"
+            style="@style/controller_button_style"
+            android:text="@string/download"
+            android:layout_marginLeft="@dimen/controll_margin"
+            android:drawableTop="@drawable/controller_btn_download"/>
+        <RadioButton
+            android:id="@+id/main_controller_mine"
+            style="@style/controller_button_style"
+            android:text="@string/mine"
+            android:drawableTop="@drawable/controller_btn_mine"/>
+
+    </RadioGroup>
+    <ImageView
+        android:id="@+id/main_play"
+        android:layout_width="@dimen/play_width"
+        android:layout_height="@dimen/play_height"
+        android:src="@mipmap/play_icon_default"
+        android:layout_gravity="center_horizontal|bottom"/>
+</FrameLayout>

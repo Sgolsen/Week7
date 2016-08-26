@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <com.golsen.week7.ui.view.TopBar
+        android:id="@+id/net_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"/>
+    <ListView
+        android:id="@+id/net_lv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>

@@ -1,0 +1,8 @@
+ 项目的创建
+ >* 对包进行分层 utils(工具) ui(Activity和 fragment) http(网络) sql(数据库)
+    constants(常量)
+
+ >* 创建自己的基类,Fragment Activity...
+ >* 对主页面进行一个架构设计
+ >* 在开发的时候要一步一步进行,先使用假数据填充,之后再写更新,更换为网络数据
+ >* 开发过程要注意的:打log,debug,看logcat...

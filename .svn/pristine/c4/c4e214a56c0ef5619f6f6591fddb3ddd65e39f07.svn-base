@@ -1,0 +1,390 @@
+package com.golsen.week7.ui.fragments;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.ExpandableListView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.golsen.week7.R;
+import com.golsen.week7.adapters.ColumnFragmentAdapter;
+import com.golsen.week7.adapters.ImgFragmentAdapter;
+import com.golsen.week7.adapters.RecommentLvAdapter;
+import com.golsen.week7.constants.HttpConstant;
+import com.golsen.week7.model.Columns;
+import com.golsen.week7.model.FocusImage;
+import com.golsen.week7.model.HeadColumns;
+import com.golsen.week7.model.RecommendData;
+import com.golsen.week7.model.RecommendFooters;
+import com.google.gson.Gson;
+import com.rock.teachlibrary.ImageLoader;
+import com.rock.teachlibrary.http.HttpUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Administrator on 2016/8/22 0022.
+ */
+public class RecommendFragment extends BaseFragment implements ExpandableListView.OnGroupClickListener, ViewPager.OnPageChangeListener {
+
+    private static final String TAG = RecommendFragment.class.getSimpleName();
+    private ExpandableListView mListView;
+    private ViewPager mHeadViewpagerOne;
+    private ViewPager mHeadViewpagerTwo;
+    private TextView mHeadTitleOne;
+    private ImageView mImageOne;
+    private ImageView mImageTwo;
+    private ImageView mImageThree;
+    private TextView mTitleOne;
+    private TextView mTitleTwo;
+    private TextView mTitleThree;
+    private TextView mTypeTxtOne;
+    private TextView mTypeTxtTwo;
+    private TextView mTypeTxtThree;
+    private TextView mHeadTitleTwo;
+    private ImageView mBoutiqueImgOne;
+    private TextView mBoutiqueTitleOne;
+    private TextView mBoutiqueChildTitleOne;
+    private TextView mBoutiqueCountOne;
+    private ImageView mBoutiqueImgTwo;
+    private TextView mBoutiqueTitleTwo;
+    private TextView mBoutiqueChildTitleTwo;
+    private TextView mBoutiqueCountTwo;
+    private ImageView mFooterImg;
+    private LinearLayout mLayout;
+    private View mPoint;
+    private int distance;
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        layout = inflater.inflate(R.layout.fragment_recommend,container,false);
+
+        return layout;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initView();
+        setupView();
+    }
+
+    private void setupView() {
+        //headView的数据加载
+        loadHeadView();
+        //listView的数据加载
+        loadListView();
+        //footerView的数据加载
+        loadFooterView();
+        //初始化圆点滑动的相关数据
+        initEvent();
+
+
+    }
+
+    private void initEvent() {
+        /**
+         * 当底部红色小圆点加载完成时测出两个小灰点的距离，便于计算后面小红点动态移动的距离
+         */
+        mPoint.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener(){
+            @Override
+            public void onGlobalLayout() {
+                distance = mLayout.getChildAt(1).getLeft()-mLayout.getChildAt(0).getLeft();
+            }
+        });
+        mHeadViewpagerOne.setOnPageChangeListener(this);
+    }
+
+    private void loadFooterView() {
+        HttpUtil.getStringAsync(HttpConstant.RECOMMEND_FOOTER_URL, new HttpUtil.RequestCallBack() {
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "onFailure: " );
+            }
+
+            @Override
+            public void onSuccess(String result) {
+                Gson gson = new Gson();
+                RecommendFooters recommendFooters = gson.fromJson(result, RecommendFooters.class);
+                ImageLoader.display(mFooterImg,recommendFooters.getData().get(0).getCover());
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        });
+    }
+
+    private void loadListView() {
+        HttpUtil.getStringAsync(HttpConstant.RECOMMEND_LV_URL, new HttpUtil.RequestCallBack() {
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "onFailure: ");
+            }
+
+            @Override
+            public void onSuccess(String result) {
+                Gson gson = new Gson();
+                RecommendData recommendData = gson.fromJson(result, RecommendData.class);
+
+                RecommentLvAdapter Recadapter = new RecommentLvAdapter(getActivity(), recommendData.getHotRecommends().getList());
+                mListView.setAdapter(Recadapter);
+                /**
+                 * 展开item
+                 */
+                int size = recommendData.getHotRecommends().getList().size();
+                for (int i = 0; i < size; i++) {
+                    mListView.expandGroup(i);
+                }
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        });
+    }
+
+    private void loadHeadView() {
+        HttpUtil.getStringAsync(HttpConstant.RECOMMEND_URL_ONE, new HttpUtil.RequestCallBack() {
+            private ColumnFragmentAdapter mColumnFragmentAdapter;
+            private ImgFragmentAdapter mImageAdapter;
+
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "onFailure: 请求失败" );
+            }
+
+            @Override
+            public void onSuccess(String result) {
+                Gson gson = new Gson();
+                HeadColumns headColumns = gson.fromJson(result, HeadColumns.class);
+                //设置文字
+                mHeadTitleOne.setText(headColumns.getEditorRecommendAlbums().getTitle());
+                mHeadTitleTwo.setText(headColumns.getSpecialColumn().getTitle());
+
+                mTitleOne.setText(headColumns.getEditorRecommendAlbums().getList().get(0).getTrackTitle());
+                mTitleTwo.setText(headColumns.getEditorRecommendAlbums().getList().get(1).getTrackTitle());
+                mTitleThree.setText(headColumns.getEditorRecommendAlbums().getList().get(2).getTrackTitle());
+                mTypeTxtOne.setText(headColumns.getEditorRecommendAlbums().getList().get(0).getTitle());
+                mTypeTxtTwo.setText(headColumns.getEditorRecommendAlbums().getList().get(1).getTitle());
+                mTypeTxtThree.setText(headColumns.getEditorRecommendAlbums().getList().get(2).getTitle());
+
+                mBoutiqueTitleOne.setText(headColumns.getSpecialColumn().getList().get(0).getTitle());
+                mBoutiqueTitleTwo.setText(headColumns.getSpecialColumn().getList().get(1).getTitle());
+                mBoutiqueChildTitleOne.setText(headColumns.getSpecialColumn().getList().get(0).getSubtitle());
+                mBoutiqueChildTitleTwo.setText(headColumns.getSpecialColumn().getList().get(1).getSubtitle());
+                mBoutiqueCountOne.setText(headColumns.getSpecialColumn().getList().get(0).getFootnote());
+                mBoutiqueCountTwo.setText(headColumns.getSpecialColumn().getList().get(1).getFootnote());
+
+                //加载图片
+                ImageLoader.display(mImageOne,headColumns.getEditorRecommendAlbums().getList().get(0).getCoverMiddle());
+                ImageLoader.display(mImageTwo,headColumns.getEditorRecommendAlbums().getList().get(1).getCoverMiddle());
+                ImageLoader.display(mImageThree,headColumns.getEditorRecommendAlbums().getList().get(2).getCoverMiddle());
+                ImageLoader.display(mBoutiqueImgOne,headColumns.getSpecialColumn().getList().get(0).getCoverPath());
+                ImageLoader.display(mBoutiqueImgTwo,headColumns.getSpecialColumn().getList().get(1).getCoverPath());
+
+                //头部ViewPager数据
+                List<Fragment> data = new ArrayList<>();
+                List<FocusImage> imgs = headColumns.getFocusImages().getList();
+
+                ImageFragmentOne imageFragmentOne = new ImageFragmentOne();
+                Bundle bundle1 = new Bundle();
+                bundle1.putString("imgUrl",imgs.get(0).getPic());
+                imageFragmentOne.setArguments(bundle1);
+
+                ImageFragmentTwo imageFragmentTwo = new ImageFragmentTwo();
+                Bundle bundle2 = new Bundle();
+                bundle2.putString("imgUrl",imgs.get(1).getPic());
+                imageFragmentTwo.setArguments(bundle2);
+
+                ImageFragmentThree imageFragmentThree = new ImageFragmentThree();
+                Bundle bundle3 = new Bundle();
+                bundle3.putString("imgUrl",imgs.get(2).getPic());
+                imageFragmentThree.setArguments(bundle3);
+
+                ImageFragmentFour imageFragmentFour = new ImageFragmentFour();
+                Bundle bundle4 = new Bundle();
+                bundle4.putString("imgUrl",imgs.get(3).getPic());
+                imageFragmentFour.setArguments(bundle4);
+
+                ImageFragmentFive imageFragmentFive = new ImageFragmentFive();
+                Bundle bundle5 = new Bundle();
+                bundle5.putString("imgUrl",imgs.get(4).getPic());
+                imageFragmentFive.setArguments(bundle5);
+
+                ImageFragmentSix imageFragmentSix = new ImageFragmentSix();
+                Bundle bundle6 = new Bundle();
+                bundle6.putString("imgUrl",imgs.get(5).getPic());
+                imageFragmentSix.setArguments(bundle6);
+
+                ImageFragmentSeven imageFragmentSeven = new ImageFragmentSeven();
+                Bundle bundle7 = new Bundle();
+                bundle7.putString("imgUrl",imgs.get(6).getPic());
+                imageFragmentSeven.setArguments(bundle7);
+
+                ImageFragmentEight imageFragmentEight = new ImageFragmentEight();
+                Bundle bundle8 = new Bundle();
+                bundle8.putString("imgUrl",imgs.get(7).getPic());
+                imageFragmentEight.setArguments(bundle8);
+
+                ImageFragmentNigh imageFragmentNigh = new ImageFragmentNigh();
+                Bundle bundle9 = new Bundle();
+                bundle9.putString("imgUrl",imgs.get(8).getPic());
+                imageFragmentNigh.setArguments(bundle9);
+
+                data.add(imageFragmentOne);
+                data.add(imageFragmentTwo);
+                data.add(imageFragmentThree);
+                data.add(imageFragmentFour);
+                data.add(imageFragmentFive);
+                data.add(imageFragmentSix);
+                data.add(imageFragmentSeven);
+                data.add(imageFragmentEight);
+                data.add(imageFragmentNigh);
+
+                //为viewPager底部添加圆点
+                int size = data.size();
+                for (int i = 0; i < size; i++) {
+                    View view = new View(getActivity());
+                    view.setBackgroundResource(R.mipmap.icon_home_unselector);
+                    //指定大小
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(20,20);
+                    if (i!=0) {
+                        params.leftMargin=20;
+                    }
+                    view.setLayoutParams(params);
+                    mLayout.addView(view);
+                }
+
+                mImageAdapter = new ImgFragmentAdapter(getChildFragmentManager(),data);
+                mHeadViewpagerOne.setAdapter(mImageAdapter);
+
+                //第二个viewPager
+                List<Fragment> columnData= new ArrayList<>();
+                List<Columns> cols = headColumns.getDiscoveryColumns().getList();
+                ColumnsFragmentOne columnsFragmentOne = new ColumnsFragmentOne();
+                Bundle cbundle1 = new Bundle();
+                cbundle1.putSerializable("columnOne",cols.get(0));
+                cbundle1.putSerializable("columnTwo",cols.get(1));
+                cbundle1.putSerializable("columnThree",cols.get(2));
+                cbundle1.putSerializable("columnFour",cols.get(3));
+
+                columnsFragmentOne.setArguments(cbundle1);
+
+                ColumnsFragmentTwo columnsFragmentTwo = new ColumnsFragmentTwo();
+                Bundle cbundle2 = new Bundle();
+                cbundle2.putSerializable("columnOne",cols.get(4));
+                cbundle2.putSerializable("columnTwo",cols.get(5));
+                cbundle2.putSerializable("columnThree",cols.get(6));
+                cbundle2.putSerializable("columnFour",cols.get(7));
+                columnsFragmentTwo.setArguments(cbundle2);
+
+                ColumnsFragmentThree columnsFragmentThree = new ColumnsFragmentThree();
+                Bundle cbundle3 = new Bundle();
+                cbundle3.putSerializable("columnOne",cols.get(8));
+                cbundle3.putSerializable("columnTwo",cols.get(9));
+                columnsFragmentThree.setArguments(cbundle3);
+
+                columnData.add(columnsFragmentOne);
+                columnData.add(columnsFragmentTwo);
+                columnData.add(columnsFragmentThree);
+
+                mColumnFragmentAdapter = new ColumnFragmentAdapter(getChildFragmentManager(),columnData);
+                mHeadViewpagerTwo.setAdapter(mColumnFragmentAdapter);
+
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        });
+
+
+    }
+
+    private void initView() {
+
+
+        mListView = ((ExpandableListView) layout.findViewById(R.id.recommend_lv));
+        View headView = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_recommend_header, null);
+        View footerView = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_recommend_footer, null);
+
+        mHeadViewpagerOne = ((ViewPager) headView.findViewById(R.id.recommend_header_viewpager_one));
+        mHeadViewpagerTwo = ((ViewPager) headView.findViewById(R.id.recommend_header_viewpager_two));
+
+        //底部圆点的外部layout
+        mLayout = ((LinearLayout) headView.findViewById(R.id.ll_points));
+        mPoint = headView.findViewById(R.id.v_redpoint);
+
+
+        mFooterImg = ((ImageView) footerView.findViewById(R.id.recommend_footer_img));
+
+
+
+        mHeadTitleOne = ((TextView) headView.findViewById(R.id.recommend_header_title_text_one));
+        mImageOne = ((ImageView) headView.findViewById(R.id.recommend_img_one));
+        mImageTwo = ((ImageView) headView.findViewById(R.id.recommend_img_two));
+        mImageThree = ((ImageView) headView.findViewById(R.id.recommend_img_three));
+        mTitleOne = ((TextView) headView.findViewById(R.id.recommend_text_title_one));
+        mTitleTwo = ((TextView) headView.findViewById(R.id.recommend_text_title_two));
+        mTitleThree = ((TextView) headView.findViewById(R.id.recommend_text_title_three));
+        mTypeTxtOne = ((TextView) headView.findViewById(R.id.recommend_type_one));
+        mTypeTxtTwo = ((TextView) headView.findViewById(R.id.recommend_type_two));
+        mTypeTxtThree = ((TextView) headView.findViewById(R.id.recommend_type_three));
+
+
+        mHeadTitleTwo = ((TextView) headView.findViewById(R.id.recommend_header_title_text_two));
+        mBoutiqueImgOne = ((ImageView) headView.findViewById(R.id.recommend_boutique_img_one));
+        mBoutiqueTitleOne = ((TextView) headView.findViewById(R.id.local_title));
+        mBoutiqueChildTitleOne = ((TextView) headView.findViewById(R.id.local_child_title));
+        mBoutiqueCountOne = ((TextView) headView.findViewById(R.id.local_count));
+
+        mBoutiqueImgTwo = ((ImageView) headView.findViewById(R.id.recommend_boutique_img_two));
+        mBoutiqueTitleTwo = ((TextView) headView.findViewById(R.id.recommend_boutique_title_two));
+        mBoutiqueChildTitleTwo = ((TextView) headView.findViewById(R.id.recommend_boutique_child_title_two));
+        mBoutiqueCountTwo = ((TextView) headView.findViewById(R.id.recommend_boutique_count_two));
+
+
+        mListView.addHeaderView(headView);
+        mListView.addFooterView(footerView);
+        mListView.setOnGroupClickListener(this);
+    }
+
+    @Override
+    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+        return true;
+    }
+//---------------------- ViewPager滑动监听 ----------------------------------------------------
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        float leftMargin = distance * (position + positionOffset);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mPoint.getLayoutParams();
+        params.leftMargin = Math.round(leftMargin);
+        mPoint.setLayoutParams(params);
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+}

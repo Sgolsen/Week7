@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Week7</string>
+    <!-- 创建文本资源 -->
+    <string name="discovery">发现</string>
+    <string name="book">订阅</string>
+    <string name="download">下载</string>
+    <string name="mine">我的</string>
+    <string name="local">本地台</string>
+    <string name="national">国家台</string>
+    <string name="province">省市台</string>
+    <string name="net">网络台</string>
+    <string name="recommment_broadcast">推荐电台</string>
+    <string name="row_broadcast">排行榜</string>
+    <string name="test_text">我是测试文字,我还有个小尾巴,还是不够长,还要有个小尾巴</string>
+    <string name="more">更多</string>
+    <string name="broadcast_name">电台名称</string>
+    <string name="broadcast_state">正在直播:</string>
+    <string name="find_more">查看更多分类</string>
+    <string name="number_one">1</string>
+    <string name="number_two">2</string>
+
+
+    <string-array name="tabs">
+        <item>推荐</item>
+        <item>分类</item>
+        <item>广播</item>
+        <item>榜单</item>
+        <item>主播</item>
+    </string-array>
+</resources>

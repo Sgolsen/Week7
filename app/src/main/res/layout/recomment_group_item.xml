@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/classify_view_height"
+            android:background="@color/colorDivider"/>
+        <ImageView
+            android:id="@+id/recommend_lv_item_img"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="@dimen/broadcast_commend_margin"
+            android:layout_marginLeft="@dimen/broadcast_commend_margin"
+            android:layout_marginBottom="@dimen/broadcast_commend_margin"
+            android:src="@mipmap/title_tag"/>
+        <TextView
+            android:id="@+id/recommend_group_item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/recommend_lv_item_img"
+            android:layout_toRightOf="@+id/recommend_lv_item_img"
+            android:text="@string/row_broadcast"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_alignTop="@+id/recommend_lv_item_img"
+            android:text="@string/more"
+            android:gravity="left"
+            android:background="@drawable/broadcast_more_btn"/>
+    </RelativeLayout>
+</LinearLayout>
